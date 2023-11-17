@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:whatsapp_clone/data/data_dummy.dart';
+import 'package:whatsapp_clone/models/chat_message_model.dart';
 
-class ChatDetailPage extends StatelessWidget {
+class ChatDetailPage extends StatefulWidget {
   const ChatDetailPage({super.key});
 
+  @override
+  State<ChatDetailPage> createState() => _ChatDetailPageState();
+}
+
+class _ChatDetailPageState extends State<ChatDetailPage> {
+  TextEditingController sms = new TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,15 +49,15 @@ class ChatDetailPage extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {},
-            icon: Icon(Icons.videocam),
+            icon: const Icon(Icons.videocam),
           ),
           IconButton(
             onPressed: () {},
-            icon: Icon(Icons.call),
+            icon: const Icon(Icons.call),
           ),
           IconButton(
             onPressed: () {},
-            icon: Icon(Icons.more_vert),
+            icon: const Icon(Icons.more_vert),
           ),
         ],
       ),
@@ -60,10 +68,13 @@ class ChatDetailPage extends StatelessWidget {
             color: Colors.black.withOpacity(0.09),
           ),
           //listado de mensajes
-          ListView(
-            children: [
-              Align(
-                alignment: Alignment.topLeft,
+          ListView.builder(
+            itemCount: chatsMessageList.length,
+            itemBuilder: (BuildContext context, int index) {
+              return Align(
+                alignment: chatsMessageList[index].messageType == 'me'
+                    ? Alignment.topRight
+                    : Alignment.topLeft,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10.0,
@@ -74,59 +85,33 @@ class ChatDetailPage extends StatelessWidget {
                     vertical: 6.0,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(14.0),
-                      bottomRight: Radius.circular(14.0),
-                      topLeft: Radius.circular(0),
-                      topRight: Radius.circular(14.0),
+                    color: chatsMessageList[index].messageType == 'me'
+                        ? const Color(0xffe3ffc4)
+                        : Colors.white,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: const Radius.circular(14.0),
+                      bottomRight: const Radius.circular(14.0),
+                      topLeft: chatsMessageList[index].messageType == 'me'
+                          ? const Radius.circular(14.0)
+                          : const Radius.circular(0),
+                      topRight: chatsMessageList[index].messageType == 'me'
+                          ? const Radius.circular(0)
+                          : const Radius.circular(14.0),
                     ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.04),
-                        offset: Offset(4, 4),
+                        offset: const Offset(4, 4),
                         blurRadius: 10.0,
                       ),
                     ],
                   ),
                   child: Text(
-                    "Hola, Juan, cómo estas?",
+                    chatsMessageList[index].messageContent,
                   ),
                 ),
-              ),
-              Align(
-                alignment: Alignment.topRight,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10.0,
-                    vertical: 6.0,
-                  ),
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 12.0,
-                    vertical: 6.0,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Color(0xffe3ffc4),
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(14.0),
-                      bottomRight: Radius.circular(14.0),
-                      topLeft: Radius.circular(14.0),
-                      topRight: Radius.circular(0),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
-                        offset: Offset(4, 4),
-                        blurRadius: 10.0,
-                      ),
-                    ],
-                  ),
-                  child: Text(
-                    "Holaa, estoy muy bien, ando aprendiendo Flutter?",
-                  ),
-                ),
-              ),
-            ],
+              );
+            },
           ),
           //Input del nuevo mensaje
           Align(
@@ -140,6 +125,7 @@ class ChatDetailPage extends StatelessWidget {
                 children: [
                   Expanded(
                     child: TextField(
+                      controller: sms,
                       decoration: InputDecoration(
                         hintText: "Type message",
                         hintStyle: TextStyle(
@@ -189,7 +175,14 @@ class ChatDetailPage extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: () {
-                      print("object");
+                      if (sms.text.trim().isNotEmpty) {
+                        chatsMessageList.add(
+                          ChatMessageModel(
+                              messageContent: sms.text, messageType: 'me'),
+                        );
+                        sms.clear();
+                        setState(() {});
+                      }
                     },
                     child: Container(
                       padding: EdgeInsets.all(15.0),
